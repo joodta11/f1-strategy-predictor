@@ -13,8 +13,7 @@ import pandas as pd
 from matplotlib.patches import Patch
 
 from src.model_api import predict_lap_times
-from src.simulator import (distinct_strategies, find_optimal_strategy, simulate_strategy,
-                           strategy_label)
+from src.simulator import distinct_strategies, find_optimal_strategy, simulate_strategy
 
 FIG_DIR = Path(__file__).resolve().parent.parent / "figures"
 

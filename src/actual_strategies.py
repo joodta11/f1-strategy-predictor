@@ -1,7 +1,6 @@
 """Extract the strategies teams actually ran and compare them with the optimum."""
 import pandas as pd
 
-from src.config import DRY_COMPOUNDS
 from src.simulator import find_optimal_strategy, simulate_strategy, strategy_label
 
 

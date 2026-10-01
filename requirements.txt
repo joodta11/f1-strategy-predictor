@@ -1,8 +1,7 @@
-fastf1
-pandas
-numpy
-scikit-learn
-matplotlib
-plotly
-streamlit
-pytest
+fastf1>=3.8
+pandas>=2.2
+numpy>=2.0
+scikit-learn>=1.6
+matplotlib>=3.9
+streamlit>=1.50
+pytest>=8.0
