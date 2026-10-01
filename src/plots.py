@@ -50,7 +50,10 @@ def _title(ax, title, subtitle):
     ax.text(0, 1.02, subtitle, transform=ax.transAxes, color=MUTED, fontsize=9.5, va="bottom")
 
 
-def _save(fig, name):
+def _save(fig, name, save=True):
+    """Write the PNG and return its path, or return the figure itself (for the app)."""
+    if not save:
+        return fig
     FIG_DIR.mkdir(parents=True, exist_ok=True)
     path = FIG_DIR / name
     fig.savefig(path)
@@ -72,7 +75,7 @@ def _spread_labels(ax, labels, min_gap_frac=0.06):
     for y, x, text in labels:
         ax.annotate(text, (x, y), xytext=(x_text, y), va="center", color=INK, fontsize=9.5)
 
-def plot_degradation(ctx, laps: pd.DataFrame | None = None):
+def plot_degradation(ctx, laps: pd.DataFrame | None = None, save=True):
     """Predicted lap time vs tyre age per compound, at a fixed mid-race fuel load.
 
     If cleaned laps are given, their fuel- and driver-corrected medians per tyre
@@ -106,12 +109,12 @@ def plot_degradation(ctx, laps: pd.DataFrame | None = None):
     ax.set_xlim(0, max(ctx.max_tyre_age.values()) * 1.32)
     _title(ax, f"{ctx.year} {ctx.gp_name} GP: tyre degradation",
            "Lines: fitted model for a median driver. Dots: median of real laps, fuel- and driver-corrected.")
-    return _save(fig, f"{_slug(ctx)}_degradation.png")
+    return _save(fig, f"{_slug(ctx)}_degradation.png", save)
 
 
 # --------------------------------------------- 2. strategy comparison --------
 
-def plot_strategy_comparison(ctx, ranked: pd.DataFrame, top_n=5):
+def plot_strategy_comparison(ctx, ranked: pd.DataFrame, top_n=5, save=True):
     """Cumulative time gap per lap for the top distinct strategies relative to the best."""
     top = distinct_strategies(ranked).head(top_n)
     best_laps = np.cumsum(simulate_strategy(top.strategy.iat[0], ctx)[1])
@@ -128,7 +131,7 @@ def plot_strategy_comparison(ctx, ranked: pd.DataFrame, top_n=5):
     ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.13), ncol=3, fontsize=9)
     _title(ax, f"{ctx.year} {ctx.gp_name} GP: top {len(top)} strategies",
            "Best timing for each set of compounds. Jumps up are pit stops; the right edge is the final gap.")
-    return _save(fig, f"{_slug(ctx)}_strategy_comparison.png")
+    return _save(fig, f"{_slug(ctx)}_strategy_comparison.png", save)
 
 
 # ------------------------------------------------- 3. actual vs optimal ------
@@ -146,7 +149,7 @@ def _stint_bars(ax, y, strategy, total_laps, height=0.62, gap=0.25):
                 color="white" if comp == "SOFT" else INK, fontweight="bold", zorder=4)
 
 
-def plot_actual_vs_optimal(ctx, comparison: pd.DataFrame):
+def plot_actual_vs_optimal(ctx, comparison: pd.DataFrame, save=True):
     rows = [("Optimal (model)", comparison.optimal_strategy.iat[0], None, [])]
     rows += [(f"P{r.pos}  {r.driver}" + ("*" if r.lapped else ""), r.actual_strategy,
               r.delta_s, r.sc_stops) for r in comparison.itertuples()]
@@ -174,12 +177,12 @@ def plot_actual_vs_optimal(ctx, comparison: pd.DataFrame):
     _title(ax, f"{ctx.year} {ctx.gp_name} GP: actual vs optimal strategy",
            "Top 10 finishers, each plan simulated green-flag for a median driver vs the model's best.\n"
            "SC stop = a stop made under safety car, cheaper in reality than simulated. * = finished a lap down.")
-    return _save(fig, f"{_slug(ctx)}_actual_vs_optimal.png")
+    return _save(fig, f"{_slug(ctx)}_actual_vs_optimal.png", save)
 
 
 # ---------------------------------------------- 4. pit window sensitivity ----
 
-def plot_pit_window(ctx, ranked: pd.DataFrame):
+def plot_pit_window(ctx, ranked: pd.DataFrame, save=True):
     """Total race time vs pit lap for the best one-stop compound pair."""
     one = ranked[ranked.stops == 1]
     best = one.iloc[0].strategy
@@ -205,7 +208,7 @@ def plot_pit_window(ctx, ranked: pd.DataFrame):
     _title(ax, f"{ctx.year} {ctx.gp_name} GP: pit window for {pair[0].title()} → {pair[1].title()}",
            f"Best one-stop compound order. Shaded: within 1s of the best pit lap "
            f"(laps {window.min()}-{window.max()}).")
-    return _save(fig, f"{_slug(ctx)}_pit_window.png")
+    return _save(fig, f"{_slug(ctx)}_pit_window.png", save)
 
 
 def plot_all(ctx, session, laps=None):
