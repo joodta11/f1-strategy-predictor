@@ -70,7 +70,8 @@ The gradient boosted model overfits. Its MAE is 0.23 s on training data and abou
 
 ```bash
 python -m venv .venv
-.venv\Scripts\activate          # macOS/Linux: source .venv/bin/activate
+.venv\Scripts\activate              # Windows (cmd / PowerShell)
+source .venv/bin/activate           # macOS / Linux
 pip install -r requirements.txt
 
 python -m src.race_summary          # check the chosen races were dry
